@@ -5,6 +5,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var Todo = require('./model/Todo');
 var Task = require('./model/Task');
 
 //and create our instances
@@ -33,18 +34,63 @@ router.get('/', function(req, res) {
   res.json({ message: 'API Initialized!'});
 });
 
-router.route('/saveTask')
+//Create a todo master entry for a date
+router.route('/saveTodo')
   .post(function(req, res) {
-    var task = new Task();
-    (req.body.task) ? task.task = req.body.task : null;
-    (req.body.dueDate) ? task.dueDate = req.body.dueDate : null;
-
-    task.save(function(err) {
+    var todo = new Todo();
+    (req.body.dueDate) ? todo.dueDate = req.body.dueDate : null;
+    (req.body.user) ? todo.user = req.body.user : null;
+    todo.save(function(err, todo) {
       if (err)
         res.send(err);
-      res.json({ message: 'Task successfully added!' });
+      res.json({ message: 'Todo successfully added!', status: 'success' , todo: todo});
     });
-  }); 
+  });
+
+//Save task for a todo
+router.route('/saveTask')
+  .post(function(req, res) {
+    if( req.body._todoId == null)
+      res.send({ message: 'Please select date ', status: 'error'});
+
+    var task = new Task();
+    (req.body.task) ? task.task = req.body.task : null;
+    (req.body._todoId) ? task._todoId = req.body._todoId : null;
+
+    task.save(function(err, task) {
+      if (err)
+        res.send(err);
+
+      // To increase the items count in todo
+      Todo.findByIdAndUpdate({ _id: task._todoId }, {$inc: {totalItems:1}}, function (err, data) {
+        console.log('------ data --------', data);
+      });
+
+      res.json({ message: 'Task successfully added!', status: 'success' });
+    });
+  });
+
+  router.route('/todos')
+    .get(function(req, res) {
+      //looks at our Comment Schema
+      Todo.find(function(err, todos) {
+        if (err)
+          res.send(err);
+        //responds with a json object of our database comments.
+        res.json(todos)
+      });
+    })
+
+router.route('/tasks/:dueDate')
+  .get(function(req, res) {
+    //looks at our Comment Schema
+    Task.find({ 'task': req.params.dueDate}, function(err, tasks) {
+      if (err)
+        res.send(err);
+      //responds with a json object of our database comments.
+      res.json(tasks)
+    });
+  })
 
 //Use our router configuration when we call /api
 app.use('/', router);

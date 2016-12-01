@@ -7,13 +7,13 @@ class TodoCard extends Component {
     return (
       <Card>
           <CardTitle
-           title="Todo List"
-           subtitle="Subtitle here"
+           title={this.props.dueDate}
          />
-         <CardText>hoi</CardText>
+         <CardText>
+           Pending Items - {this.props.completedItems} / {this.props.totalItems}
+         </CardText>
           <CardActions  >
-            <Button label="Action 1" />
-            <Button label="Action 2" />
+            <Button label="VIEW" /> 
           </CardActions>
       </Card>
     );

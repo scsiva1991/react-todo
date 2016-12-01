@@ -2,11 +2,26 @@ import React, { Component } from 'react';
 import {Button, IconButton} from 'react-toolbox/lib/button';
 import TodoCard from './TodoCard';
 import {browserHistory} from 'react-router';
+import axios from 'axios';
 
 class Dashboard extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {todoList: []};
+  };
+
   handleClick() {
   	browserHistory.push('/new');
   }
+
+  componentDidMount() {
+    axios.get('http://localhost:3001/todos')
+      .then(res => {
+        console.log('---- data ----', res.data);
+        this.setState({todoList: res.data});
+      })
+  };
 
   render() {
     const divCenter = {
@@ -31,9 +46,12 @@ class Dashboard extends Component {
         </div>
         <div className="row">
           <div className="col-md-4">
-            <TodoCard/>
-          </div>
-
+            {
+              this.state.todoList.map(function(todo) {
+                return <TodoCard key={todo._id} dueDate={todo.dueDate.split('T')[0]} completedItems={todo.completedItems} totalItems={todo.totalItems}/>
+              })
+            }
+          </div> 
         </div>
       </div>
     );
