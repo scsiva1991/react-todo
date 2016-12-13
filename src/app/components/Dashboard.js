@@ -3,6 +3,7 @@ import {Button, IconButton} from 'react-toolbox/lib/button';
 import TodoCard from './TodoCard';
 import {browserHistory} from 'react-router';
 import axios from 'axios';
+import TaskListItem from './TaskListItem';
 
 class Dashboard extends Component {
 
@@ -16,7 +17,7 @@ class Dashboard extends Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3001/todos')
+    axios.get('http://192.168.1.249:3001/todos')
       .then(res => {
         console.log('---- data ----', res.data);
         this.setState({todoList: res.data});
@@ -44,14 +45,15 @@ class Dashboard extends Component {
             </div>
           </div>
         </div>
-        <div className="row">
-          <div className="col-md-4">
-            {
-              this.state.todoList.map(function(todo) {
-                return <TodoCard key={todo._id} dueDate={todo.dueDate.split('T')[0]} completedItems={todo.completedItems} totalItems={todo.totalItems}/>
-              })
-            }
-          </div> 
+        <div >
+          <div className="row">
+              {
+                this.state.todoList.map(function(todo) {
+
+                  return <TodoCard key={todo._id} id={todo._id}  dueDate={todo.dueDate.split('T')[0]} completedItems={todo.completedItems} totalItems={todo.totalItems}/>
+                })
+              }
+          </div>
         </div>
       </div>
     );

@@ -7,67 +7,61 @@ import axios from 'axios';
 import TaskListItem from './TaskListItem';
 import {Snackbar } from 'react-toolbox';
 
-class NewTodo extends Component {
+class UpdateTodo extends Component {
+
   constructor(props) {
     super(props);
-    this.state = {dueDate: '', task: '', todoId: '', taskList: [], message: '', active: false};
+    this.state = {task: '', todoId: '', taskList: [], message: '', active: false};
   };
 
   goBack() {
   	browserHistory.push('/');
   }
 
+  handleTaskChange(item, value) {
+    this.setState({[item]: value});
+  };
+
   handleSnackbarClick = (event, instance) => {
-     this.setState({ active: false });
-   };
-
-   handleSnackbarTimeout = (event, instance) => {
-     this.setState({ active: false });
-   };
-
- handleChange(item, value) {
-   console.log(item, value);
-   this.setState({[item]: value});
-
-   let obj = {};
-   obj.dueDate = value;
-   obj.user = 'siva';
-
-   console.log('-- obj --', obj);
-
-   axios.post('http://192.168.1.249:3001/saveTodo', obj)
-     .then(res => {
-       console.log('---- data ----', res);
-        this.setState({todoId: res.data.todo._id});
-        this.setState({message: res.data.message});
-        this.setState({ active: true });
-     });
-
+   this.setState({ active: false });
  };
 
- handleTaskChange(item, value) {
-   console.log(this.state);
-   this.setState({[item]: value});
+ handleSnackbarTimeout = (event, instance) => {
+   this.setState({ active: false });
  };
 
- addTask() {
-   if(this.state.task != '') {
-     let obj = {};
-     obj.task = this.state.task;
-     obj._todoId = this.state.todoId;
-     obj.isCompleted = false;
 
-     this.setState({taskList: this.state.taskList.concat(this.state.task)});
-     this.setState({task: ''});
+  addTask() {
 
-     axios.post('http://192.168.1.249:3001/saveTask', obj)
-       .then(res => {
-         console.log('---- data ----', res);
-         this.setState({message: res.data.message});
-         this.setState({ active: true });
-       });
-     }
- };
+    if(this.state.task != '') {
+      let obj = {};
+      obj.task = this.state.task;
+      obj._todoId = this.state.todoId;
+      obj.isCompleted = false;
+
+      this.setState({taskList: this.state.taskList.concat(obj)});
+      this.setState({task: ''});
+
+      axios.post('http://192.168.1.249:3001/saveTask', obj)
+        .then(res => {
+          console.log('---- data ----', res);
+          this.setState({message: res.data.message});
+          this.setState({ active: true });
+        });
+    }
+
+  };
+
+  componentDidMount() {
+    const id = this.props.params.id;
+    this.setState({todoId: id});
+    console.log(id);
+    axios.get('http://192.168.1.249:3001/tasks/'+id)
+      .then(res => {
+        console.log('---- data ----', res.data);
+        this.setState({taskList: res.data});
+      })
+  };
 
   render() {
 
@@ -85,20 +79,11 @@ class NewTodo extends Component {
       'marginTop': '50px'
     };
 
-    return (
+    return(
       <div className="container-fluid">
         <Button label='Back' style={marginTop50} flat primary onClick={ this.goBack.bind(this) } />
         <div className="row" style={divCenter}>
             <div className="col-xs-12 col-md-8 col-md-offset-2">
-              <h4>Please select date to continue</h4>
-              <DatePicker
-                label='Todo Date'
-                onChange={this.handleChange.bind(this, 'dueDate')}
-                value={this.state.dueDate}
-                minDate={minDate}
-                inputFormat={(value) => `${value.getDate()}/${value.getMonth() + 1}/${value.getFullYear()}`}
-                sundayFirstDayOfWeek
-              />
             <div className="row">
               <div className="col-xs-8 col-md-10">
                 <Input type='text' multiline value={this.state.task} onChange={this.handleTaskChange.bind(this, 'task')} />
@@ -110,7 +95,7 @@ class NewTodo extends Component {
             <div className="row">
               {
                 this.state.taskList.map(function(task, i) {
-                  return <TaskListItem key={i} task={task}/>
+                  return <TaskListItem key={i} task={task.task}/>
                 })
               }
             </div>
@@ -130,4 +115,4 @@ class NewTodo extends Component {
   }
 }
 
-module.exports = NewTodo;
+module.exports = UpdateTodo;

@@ -4,7 +4,7 @@
   "description": "An interactive todo app in react",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --content-base src/www --progress --inline"
+    "start": "webpack-dev-server --content-base src/www --progress --inline --host 192.168.1.249"
   },
   "repository": {
     "type": "git",
@@ -43,6 +43,7 @@
     "extract-text-webpack-plugin": "~1.0.1",
     "internal-ip": "~1.2.0",
     "mongoose": "^4.7.0",
+    "mongoose-dateonly": "^1.0.3",
     "node-sass": "~3.8.0",
     "normalize.css": "~4.2.0",
     "postcss-loader": "~0.10.1",

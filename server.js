@@ -41,8 +41,12 @@ router.route('/saveTodo')
     (req.body.dueDate) ? todo.dueDate = req.body.dueDate : null;
     (req.body.user) ? todo.user = req.body.user : null;
     todo.save(function(err, todo) {
-      if (err)
-        res.send(err);
+      if (err) {
+        if (err.name === 'MongoError' && err.code === 11000) {
+          res.send({ message: 'Todo date already exists', status: 'error' , todo: todo});
+        }
+      }
+
       res.json({ message: 'Todo successfully added!', status: 'success' , todo: todo});
     });
   });
@@ -81,13 +85,13 @@ router.route('/saveTask')
       });
     })
 
-router.route('/tasks/:dueDate')
+router.route('/tasks/:id')
   .get(function(req, res) {
     //looks at our Comment Schema
-    Task.find({ 'task': req.params.dueDate}, function(err, tasks) {
+    Task.find({ '_todoId': req.params.id}, function(err, tasks) {
       if (err)
         res.send(err);
-      //responds with a json object of our database comments.
+
       res.json(tasks)
     });
   })
